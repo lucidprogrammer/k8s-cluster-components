@@ -1,0 +1,28 @@
+---
+# tasks file for clusterautoscaler
+- name: "cluster_major_version"
+  # IBM cluster could show git version as v1.17.7+IKS, Azure AKS as v1.18.2, EKS as v1.16.8-eks-fd1ea7.
+  set_fact:
+    cluster_major_version: "{{ ('.'.join((lookup('k8s', cluster_info='version').kubernetes.gitVersion.split('.')[:2]))).replace('v','') }}"
+- name: "Using curl to connect to a host via SOCKS proxy (unsupported in uri). Ordinarily this would throw a warning."
+  shell: git ls-remote --tags --sort -v:refname --refs https://github.com/kubernetes/autoscaler | grep cluster-autoscaler-"{{cluster_major_version}}" | head -n 1| awk '{print $2}'| awk -F'-' '{printf "v"}{printf $3}'
+  register: autoscaler_version_out
+- name: "Set cluster autoscaler version"
+  set_fact:
+    autoscaler_version: "{{autoscaler_version_out.stdout}}"
+- debug:
+     verbosity: 4
+     msg:
+      - Installing cluster autoscaler version {{autoscaler_version}} on cluster {{cluster_name}}
+      - Template is {{ lookup('template','cluster-autoscaler.yaml' | from_yaml)}}
+   
+- name: "Cluster Autoscaler resource"
+  when:
+    - autoscaler_version is defined and (autoscaler_version | length > 0)
+    - cluster_name is defined and (cluster_name | length > 0)
+    - state == 'present'
+  community.kubernetes.k8s:
+    state: "{{ state }}"
+    definition: "{{ lookup('template','cluster-autoscaler.yaml' | from_yaml)}}"
+      
+    

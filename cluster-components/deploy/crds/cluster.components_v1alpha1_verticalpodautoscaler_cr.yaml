@@ -1,0 +1,7 @@
+apiVersion: cluster.components/v1alpha1
+kind: VerticalPodAutoscaler
+metadata:
+  name: example-verticalpodautoscaler
+spec:
+  # Add fields here
+  state: "absent"

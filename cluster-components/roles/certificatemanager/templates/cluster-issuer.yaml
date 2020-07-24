@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: "{{cluster_issuer.name}}"
+  namespace: "{{cluster_issuer.namespace}}"
+spec:
+  acme: 
+    email: "{{cluster_issuer.acme.email}}"
+    server: "{{cluster_issuer.acme.server}}"
+    privateKeySecretRef:
+      name: "{{cluster_issuer.name}}"
+    solvers: {{cluster_issuer.acme.solvers}}
+
+    
+      

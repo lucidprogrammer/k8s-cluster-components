@@ -1,0 +1,24 @@
+---
+- name: "add domain filter"
+  when:
+    - domain_filter is defined and (domain_filter | length > 0)
+  set_fact:
+    external_dns_args: "{{ external_dns_args + [\"--domain-filter=\"+domain_filter]}}"
+- name: "add assume role"
+  when:
+    - assume_role is defined and (assume_role.account|length >0)
+    - assume_role is defined and (assume_role.role_name|length >0)
+  set_fact:
+    external_dns_args: "{{ external_dns_args + [\"--aws-assume-role=arn:aws:iam::\"+assume_role.account+\":role/\"+assume_role.role_name]}}"
+- name: "define"
+  set_fact:
+    external_dns_args_str: "{{ lookup('template','external-dns.yaml'| from_yaml  )}}"
+
+- debug:
+    var: external_dns_args_str
+- name: "apply external-dns"
+  community.kubernetes.k8s:
+    state: "{{ state }}"
+    definition: "{{ lookup('template','external-dns.yaml' | from_yaml)}}"
+
+ 

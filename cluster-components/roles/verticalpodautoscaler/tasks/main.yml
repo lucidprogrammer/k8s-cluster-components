@@ -1,0 +1,26 @@
+---
+# tasks file for verticalpodautoscaler
+- name: "check $VPA env variable"
+  shell: echo ${VPA:-""}
+  register: vpa_env_out
+- name: "set var vpa"
+  set_fact:
+    vpa: "{{ vpa_env_out.stdout }}"
+- debug:
+  var: vpa
+- name: "install vertical pod autoscaler"
+  when:
+    - state == 'present'
+    - vpa is defined and ( vpa | length > 0)
+  shell: $VPA/hack/vpa-up.sh
+  register: installation_logs
+- debug:
+    var: installation_logs
+- name: "uninstall vertical pod autoscaler"
+  when:
+    - state == 'absent'
+    - vpa is defined and ( vpa | length > 0)
+  shell: $VPA/hack/vpa-down.sh
+  register: uninstallation_logs
+- debug:
+    var: uninstallation_logs

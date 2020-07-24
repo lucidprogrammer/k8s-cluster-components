@@ -1,0 +1,47 @@
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: cluster-components
+#   namespace: default
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       name: cluster-components
+#   template:
+#     metadata:
+#       labels:
+#         name: cluster-components
+#     spec:
+#       serviceAccountName: cluster-components
+#       containers:
+#         - name: cluster-components
+#           # Replace this with the built image name
+#           image: lucidprogrammer/cluster-components-operator:latest
+#           imagePullPolicy: "Always"
+#           volumeMounts:
+#           - mountPath: /tmp/ansible-operator/runner
+#             name: runner
+#           env:
+#             - name: WATCH_NAMESPACE
+#               value: ""
+#             - name: POD_NAME
+#               valueFrom:
+#                 fieldRef:
+#                   fieldPath: metadata.name
+#             - name: OPERATOR_NAME
+#               value: "cluster-components"
+#             - name: ANSIBLE_GATHERING
+#               value: explicit
+#             - name: ANSIBLE_VERBOSITY_CLUSTERAUTOSCALER_CLUSTER_COMPONENTS
+#               value: "4"
+#           livenessProbe:
+#             httpGet:
+#               path: /healthz
+#               port: 6789
+#             initialDelaySeconds: 5
+#             periodSeconds: 3
+#       volumes:
+#         - name: runner
+#           emptyDir: {}

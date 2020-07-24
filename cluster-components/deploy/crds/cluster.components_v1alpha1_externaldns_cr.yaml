@@ -1,0 +1,12 @@
+apiVersion: cluster.components/v1alpha1
+kind: ExternalDns
+metadata:
+  name: example-externaldns
+spec:
+  # Add fields here
+  state: "present"
+  provider: "aws"
+  domain_filter: "domain.com"
+  # assume_role:
+  #   account: "xxx"
+  #   role_name: "external_route53_role"
