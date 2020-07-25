@@ -1,0 +1,31 @@
+---
+# tasks file for route53nestedsubdomain
+- name: "create elb domain mapping"
+  when:
+    - state == 'present'
+    - subdomain is defined and (subdomain | length > 0)
+    - edge_proxy_namespace is defined and (edge_proxy_namespace | length > 0)
+  shell: $CREATE_ELB_MAPPING_AWS "{{ subdomain }}" "{{ route53_hosted_zone }}"
+  register: command_result
+  environment:
+    EDGE_PROXY_NAMESPACE: "{{ edge_proxy_namespace }}"
+    EDGE_PROXY_SERVICE_NAME: "{{ edge_proxy_service_name }}"
+    AWS_DEFAULT_REGION: "{{ aws_default_region }}"
+    AWS_ACCESS_KEY_ID_R53: ""
+    AWS_SECRET_ACCESS_KEY_R53: ""
+    AWS_DEFAULT_REGION_R53: ""
+    AWS_ACCESS_KEY_ID_ELB: ""
+    AWS_SECRET_ACCESS_KEY_ELB: ""
+    AWS_DEFAULT_REGION_ELB: ""
+- name: "delete elb domain mapping"
+  when:
+    - state == 'absent'
+    - subdomain is defined and (subdomain | length > 0)
+  shell: $CREATE_ELB_MAPPING_AWS "{{ subdomain }}" "{{ route53_hosted_zone }}" "" "" "DELETE"
+  register: command_result
+  environment:
+    AWS_ACCESS_KEY_ID_R53: ""
+    AWS_SECRET_ACCESS_KEY_R53: ""
+    AWS_DEFAULT_REGION_R53: ""
+- debug:
+    var: command_result

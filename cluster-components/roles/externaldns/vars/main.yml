@@ -5,7 +5,6 @@ external_dns_args:
   - --source=service
   - --source=ingress
   - --source=istio-gateway
-  - --provider=aws
   - --policy=sync
   - --log-level=debug
   - --aws-zone-type=public

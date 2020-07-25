@@ -1,15 +1,51 @@
 ---
-- name: "add domain filter"
+- name: "get cluster_info"
+  when:
+    - cluster_info is defined
+    - cluster_info == 'present'
+  set_fact:
+    cluster_info_cm: "{{ lookup('k8s', api_version='v1', kind='ConfigMap',resource_name='cluster-info',namespace='kube-system') }}"
+  
+- name: "set variables from cluster_info"
+  when: cluster_info_cm is defined and (cluster_info_cm | length > 0)
+  set_fact:
+    provider: "{{cluster_info_cm.data.provider if cluster_info_cm.data.provider is defined else ''}}"
+    region: "{{cluster_info_cm.data.region if cluster_info_cm.data.region is defined else ''}}"
+    route53_hosted_zone: "{{cluster_info_cm.data.route53_hosted_zone if cluster_info_cm.data.route53_hosted_zone is defined else ''}}"
+    route53_role_arn: "{{cluster_info_cm.data.route53_role_arn if cluster_info_cm.data.route53_role_arn is defined else ''}}"
+- name: "add domain filter from values"
   when:
     - domain_filter is defined and (domain_filter | length > 0)
   set_fact:
     external_dns_args: "{{ external_dns_args + [\"--domain-filter=\"+domain_filter]}}"
-- name: "add assume role"
+- name: "add domain filter from cluster-info"
   when:
-    - assume_role is defined and (assume_role.account|length >0)
-    - assume_role is defined and (assume_role.role_name|length >0)
+    - domain_filter is undefined or (domain_filter | length == 0)
+    - route53_hosted_zone is defined and (route53_hosted_zone| length > 0)
   set_fact:
-    external_dns_args: "{{ external_dns_args + [\"--aws-assume-role=arn:aws:iam::\"+assume_role.account+\":role/\"+assume_role.role_name]}}"
+    external_dns_args: "{{ external_dns_args + [\"--domain-filter=\"+route53_hosted_zone]}}"
+- name: "add assume role from values"
+  when:
+    - assume_role_arn is defined and (assume_role_arn|length >0)
+  set_fact:
+    external_dns_args: "{{ external_dns_args + [\"--aws-assume-role=\"+assume_role_arn]}}"
+- name: "add assume role from cluster-info"
+  when:
+    - assume_role_arn is undefined or (assume_role_arn|length == 0)
+    - route53_role_arn is defined and (route53_role_arn | length > 0)
+  set_fact:
+    external_dns_args: "{{ external_dns_args + [\"--aws-assume-role=\"+route53_role_arn]}}"
+- name: "add provider from values"
+  when:
+    - cloud_provider is defined and (cloud_provider | length > 0)
+  set_fact:
+    external_dns_args: "{{ external_dns_args + [\"--provider=\"+cloud_provider]}}"
+- name: "add provider from cluster_info"
+  when:
+    - cloud_provider is undefined or (cloud_provider | length == 0)
+    - provider is defined and (provider | length > 0)
+  set_fact:
+    external_dns_args: "{{ external_dns_args + [\"--provider=\"+provider]}}"
 - name: "define"
   set_fact:
     external_dns_args_str: "{{ lookup('template','external-dns.yaml'| from_yaml  )}}"

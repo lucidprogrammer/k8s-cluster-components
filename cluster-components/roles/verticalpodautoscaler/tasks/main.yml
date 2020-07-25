@@ -7,7 +7,7 @@
   set_fact:
     vpa: "{{ vpa_env_out.stdout }}"
 - debug:
-  var: vpa
+    var: vpa
 - name: "install vertical pod autoscaler"
   when:
     - state == 'present'

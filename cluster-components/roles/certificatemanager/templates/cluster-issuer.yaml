@@ -9,7 +9,11 @@ spec:
     server: "{{cluster_issuer.acme.server}}"
     privateKeySecretRef:
       name: "{{cluster_issuer.name}}"
-    solvers: {{cluster_issuer.acme.solvers}}
+    solvers: {{solvers}}
+    
 
+    
+
+    
     
       

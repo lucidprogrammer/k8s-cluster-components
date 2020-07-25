@@ -1,0 +1,6 @@
+
+imageTag: latest
+istioOperator:
+  install: true
+
+

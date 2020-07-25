@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "lizebang.bash-extension-pack",
+        "formulahendry.docker-extension-pack",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "vscoss.vscode-ansible",
+        "samuelcolvin.jinjahtml"
+        
+
+    ]
+}

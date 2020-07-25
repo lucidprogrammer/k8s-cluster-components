@@ -5,19 +5,20 @@ metadata:
 spec:
   state: "absent"
   cluster_issuer:
+    cluster_info: "present"
     state: "absent"
     namespace: "default"
     name: "letsencrypt-production-issuer"
     acme:
       email: "lucid@somewhere.com"
       server: "https://acme-v02.api.letsencrypt.org/directory"
-      solvers:
-      - selector:
-          dnsZones:
-          - "yourzone"
-        dns01:
-          route53:
-            region: us-east-2
-            role: arn:aws:iam::xxx:role/external_route53_role     
+      # solvers:
+      # - selector:
+      #     dnsZones:
+      #     - "yourzone"
+      #   dns01:
+      #     route53:
+      #       region: us-east-2
+      #       role: arn:aws:iam::xxx:role/external_route53_role     
     
 

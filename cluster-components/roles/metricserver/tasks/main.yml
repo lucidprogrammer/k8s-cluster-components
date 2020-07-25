@@ -1,0 +1,6 @@
+---
+# tasks file for metricserver
+- name: "apply metric-server"
+  community.kubernetes.k8s:
+    state: "{{ state }}"
+    definition: "{{ lookup('template','metric-server.yaml' | from_yaml)}}"

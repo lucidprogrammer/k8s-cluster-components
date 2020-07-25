@@ -1,15 +1,29 @@
 ---
 # tasks file for clusterautoscaler
+- name: "get cluster name"
+  when: cluster_name is undefined or (cluster_name is defined and (cluster_name | length == 0))
+  set_fact:
+    cluster_info: "{{ lookup('k8s', api_version='v1', kind='ConfigMap',resource_name='cluster-info',namespace='kube-system') }}"
+- name: "set cluster name"
+  when: cluster_info is defined and (cluster_info | length > 0)
+  set_fact:
+    cluster_name: "{{cluster_info.data.cluster_name if cluster_info.data.cluster_name is defined else ''}}"
+- debug:
+    var: cluster_name
 - name: "cluster_major_version"
   # IBM cluster could show git version as v1.17.7+IKS, Azure AKS as v1.18.2, EKS as v1.16.8-eks-fd1ea7.
   set_fact:
     cluster_major_version: "{{ ('.'.join((lookup('k8s', cluster_info='version').kubernetes.gitVersion.split('.')[:2]))).replace('v','') }}"
+- debug:
+    var: cluster_major_version
 - name: "Using curl to connect to a host via SOCKS proxy (unsupported in uri). Ordinarily this would throw a warning."
   shell: git ls-remote --tags --sort -v:refname --refs https://github.com/kubernetes/autoscaler | grep cluster-autoscaler-"{{cluster_major_version}}" | head -n 1| awk '{print $2}'| awk -F'-' '{printf "v"}{printf $3}'
   register: autoscaler_version_out
 - name: "Set cluster autoscaler version"
   set_fact:
     autoscaler_version: "{{autoscaler_version_out.stdout}}"
+- debug:
+    var: autoscaler_version
 - debug:
      verbosity: 4
      msg:
@@ -20,7 +34,6 @@
   when:
     - autoscaler_version is defined and (autoscaler_version | length > 0)
     - cluster_name is defined and (cluster_name | length > 0)
-    - state == 'present'
   community.kubernetes.k8s:
     state: "{{ state }}"
     definition: "{{ lookup('template','cluster-autoscaler.yaml' | from_yaml)}}"

@@ -1,0 +1,14 @@
+apiVersion: cluster.components/v1alpha1
+kind: Route53NestedSubdomain
+metadata:
+  name: example-route53nestedsubdomain
+spec:
+  # Add fields here
+  state: "absent"
+  # this should create something.somewhere.example.com and *.something.somewhere.example.com
+  # you should have setup instance profile for aws security to avoid any keys passed for this to work.
+  subdomain: "something.somewhere"
+  edge_proxy_namespace: "default"
+  # route53_hosted_zone: "example.com"
+  # edge_proxy_service_name: "gateway-proxy"
+  # aws_default_region: "us-east-1"

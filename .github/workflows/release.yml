@@ -1,0 +1,45 @@
+name: Release Actions
+env:
+  DOCKER_BUILDKIT: 1
+on:
+  push:
+    tags:        
+      - v*
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python # Set Python version
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml
+    - name: get version
+      shell: python
+      run: |-
+        import os
+        VERSION = os.environ.get('GITHUB_REF').replace('refs','').replace('heads','').replace('tags','').replace('/','')
+        with open('TAG','w') as writer:
+          if(VERSION.startswith('v')):
+            writer.write(VERSION)
+    - name: build push and updates
+      env:
+        LUCID_DOCKER_HUB_PASSWORD: "${{ secrets.LUCID_DOCKER_HUB_PASSWORD }}"
+      run: |-
+        TAG=$(cat TAG) \
+        DIR=$GITHUB_WORKSPACE \
+        ./release.sh
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.LUCID_GITHUB_TOKEN }}

@@ -1,4 +1,86 @@
 ---
+- name: "get cluster_info"
+  when:
+    - cluster_issuer.cluster_info is defined
+    - cluster_issuer.cluster_info == 'present'
+    - cluster_issuer.acme.solvers is undefined
+  set_fact:
+    cluster_info: "{{ lookup('k8s', api_version='v1', kind='ConfigMap',resource_name='cluster-info',namespace='kube-system') }}"
+   
+- name: "set variables from cluster_info"
+  when: cluster_info is defined and (cluster_info | length > 0)
+  set_fact:
+    provider: "{{cluster_info.data.provider if cluster_info.data.provider is defined else ''}}"
+    region: "{{cluster_info.data.region if cluster_info.data.region is defined else ''}}"
+    route53_hosted_zone: "{{cluster_info.data.route53_hosted_zone if cluster_info.data.route53_hosted_zone is defined else ''}}"
+    route53_role_arn: "{{cluster_info.data.route53_role_arn if cluster_info.data.route53_role_arn is defined else ''}}"
+    solvers: "{{ {} }}"
+- name: "set selector"
+  when:
+    - provider is defined and provider == 'aws'
+    - route53_hosted_zone is defined and (route53_hosted_zone | length > 0)
+  set_fact:
+    selector: 
+      selector:
+        dnsZones:
+          - "{{ route53_hosted_zone }}"
+
+- name: "add selector"
+  when:
+    - provider is defined and provider == 'aws'
+    - selector is defined and (selector | length > 0)
+  set_fact:
+    solvers: "{{ solvers | combine(selector) }}"
+
+- name: "set region"
+  when:
+    - provider is defined and provider == 'aws'
+    - region is defined and (region | length > 0)
+    - route53_role_arn is undefined or (route53_role_arn | length == 0)
+  set_fact:
+      dns:
+        dns01:
+          route53:
+            region: "{{ region }}"
+- name: "set cross account role and region"
+  when:
+    - provider is defined and provider == 'aws'
+    - region is defined and (region | length > 0)
+    - route53_role_arn is defined and (route53_role_arn | length >0)
+  set_fact:
+    dns:
+      dns01:
+        route53:
+          region: "{{ region }}"
+          role: "{{ route53_role_arn }}"
+- name: "add dns01"    
+  when:
+    - provider is defined and provider == 'aws'
+    - dns is defined and (dns | length > 0)
+  set_fact:
+    solvers: "{{ solvers | combine(dns) }}"
+
+- name: "solver list"
+  when: solvers is defined
+  set_fact:
+    solvers: "{{[solvers]}}"
+- name: "manually provided solvers"
+  when:
+    - cluster_issuer.acme.solvers is defined and (cluster_issuer.acme.solvers |length > 0)
+  set_fact:
+    solvers: "{{ cluster_issuer.acme.solvers }}"
+- name: "applied template"
+  set_fact:
+    yml: "{{ lookup('template','cluster-issuer.yaml' | from_yaml)}}"
+- debug:
+    var: selector
+- debug:
+    var: dns
+- debug:
+    var: solvers
+- debug:
+    var: yml
+    
 - name: "is clusterissuers crd available"
   set_fact:
     clusterissuer_available: "{{lookup('k8s', kind='CustomResourceDefinition',resource_name='clusterissuers.cert-manager.io')}}"

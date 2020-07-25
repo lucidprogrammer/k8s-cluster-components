@@ -1,0 +1,7 @@
+apiVersion: cluster.components/v1alpha1
+kind: MetricServer
+metadata:
+  name: example-metricserver
+spec:
+  # Add fields here
+  state: "present"

@@ -1,0 +1,7 @@
+---
+# vars file for route53nestedsubdomain
+subdomain: ""
+route53_hosted_zone: ""
+edge_proxy_namespace: ""
+edge_proxy_service_name: ""
+aws_default_region: ""

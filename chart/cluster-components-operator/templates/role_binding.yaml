@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: cluster-components-operator
+    chart: '{{ include "cluster-components-operator.chart" . }}'
+    heritage: Helm
+    release: '{{ .Release.Name }}'
+  name: cluster-components-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-components-operator
+subjects:
+- kind: ServiceAccount
+  name: cluster-components-operator
+  namespace: cluster-operator
+
+---
