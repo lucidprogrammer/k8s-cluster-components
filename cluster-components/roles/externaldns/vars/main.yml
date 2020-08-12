@@ -8,3 +8,4 @@ external_dns_args:
   - --policy=sync
   - --log-level=debug
   - --aws-zone-type=public
+  - --registry=txt

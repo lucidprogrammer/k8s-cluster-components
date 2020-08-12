@@ -13,6 +13,18 @@
     region: "{{cluster_info_cm.data.region if cluster_info_cm.data.region is defined else ''}}"
     route53_hosted_zone: "{{cluster_info_cm.data.route53_hosted_zone if cluster_info_cm.data.route53_hosted_zone is defined else ''}}"
     route53_role_arn: "{{cluster_info_cm.data.route53_role_arn if cluster_info_cm.data.route53_role_arn is defined else ''}}"
+    cluster_name: "{{cluster_info_cm.data.cluster_name if cluster_info_cm.data.cluster_name is defined else ''}}"
+- name: "add owner id from values"
+  when:
+    - owner_id is defined and (owner_id | length > 0)
+  set_fact:
+    external_dns_args: "{{ external_dns_args + [\"--txt-owner-id=\"+owner_id]}}"
+- name: "add owner id from cluster-info"
+  when:
+    - owner_id is undefined or (owner_id | length == 0)
+    - cluster_name is defined and (cluster_name| length > 0)
+  set_fact:
+    external_dns_args: "{{ external_dns_args + [\"--txt-owner-id=\"+cluster_name]}}"
 - name: "add domain filter from values"
   when:
     - domain_filter is defined and (domain_filter | length > 0)

@@ -93,6 +93,7 @@ spec:
   # cloud_provider: aws
   # domain_filter: "domain.com"
   # assume_role_arn:
+  # owner_id: # if cluster-info configmap is there, we will pick up cluster_name and use it as the owner_id
 ```
 ## Certificate Manager
 This will look for cert-manager namespace and will not create that automatically.
