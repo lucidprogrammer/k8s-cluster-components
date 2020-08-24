@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
 # shellcheck disable=SC2002,SC2128,SC2207,SC2034
-ISTIO_RELEASE=1.6.7
+ISTIO_RELEASE=1.7.0
 export DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
@@ -23,7 +23,7 @@ fi
 
 if command -v svn 2>/dev/null; then
    if [ -n "$status" ]; then
-    svn export https://github.com/istio/istio/tags/"${ISTIO_RELEASE}"/manifests/charts/istio-operator "${CHARTS}"/istio-operator
+    svn export --force https://github.com/istio/istio/tags/"${ISTIO_RELEASE}"/manifests/charts/istio-operator "${CHARTS}"/istio-operator
     sed 's|^hub:.*|hub: docker.io/istio|' -i "${CHARTS}"/istio-operator/values.yaml
     sed "s|^tag:.*|tag: ${ISTIO_RELEASE}|" -i "${CHARTS}"/istio-operator/values.yaml
    fi
