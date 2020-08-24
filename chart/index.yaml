@@ -2,8 +2,22 @@ apiVersion: v1
 entries:
   cluster-components-operator:
   - apiVersion: v2
+    appVersion: v0.1.2
+    created: "2020-08-24T06:10:47.049517328Z"
+    dependencies:
+    - condition: istioOperator.install
+      name: istio-operator
+      repository: ""
+    description: A Helm chart for managing various cluster level components as operators
+    digest: 19774598cdbd477f3e73a7e3beb6530583859399ace696d1c5174355c01e4e6b
+    name: cluster-components-operator
+    type: application
+    urls:
+    - https://lucidprogrammer.github.io/k8s-cluster-components/chart/cluster-components-operator-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: v0.1.1
-    created: "2020-08-12T05:09:40.899122283Z"
+    created: "2020-08-24T06:10:47.04889072Z"
     dependencies:
     - condition: istioOperator.install
       name: istio-operator
@@ -17,7 +31,7 @@ entries:
     version: 0.1.1
   - apiVersion: v2
     appVersion: v0.1.0
-    created: "2020-08-12T05:09:40.898507882Z"
+    created: "2020-08-24T06:10:47.048347713Z"
     dependencies:
     - condition: istioOperator.install
       name: istio-operator
@@ -29,4 +43,4 @@ entries:
     urls:
     - https://lucidprogrammer.github.io/k8s-cluster-components/chart/cluster-components-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2020-08-12T05:09:40.897118779Z"
+generated: "2020-08-24T06:10:47.042369633Z"
