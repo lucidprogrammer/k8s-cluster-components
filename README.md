@@ -142,6 +142,27 @@ spec:
   # edge_proxy_service_name: "gateway-proxy"
   # aws_default_region: "us-east-1"
 ```
+## ClusterNamedIstioIngress
+
+One common use case is where you want to use the name of the cluster to say expose grafana or such common services. 
+
+If you are managing multiple clusters and want a simple way to manage it without the need to manage multiple files/folders(gitops), you could just drop in this type of a cr in your monitoring/observability namespace.
+
+```yaml
+apiVersion: cluster.components/v1alpha1
+kind: ClusterNamedIstioIngress
+metadata:
+  name: example-clusternamedistioingress
+spec:
+  # Add fields here
+  state: "present"
+  service_namespace: "observability"
+  service_name: "grafana"
+  service_port: 3000
+  subdomain: "grafana"
+  # the above configuration assumes a cluster-info configmap 
+  # if cluster_name is my-cluster and route53_hosted_zone is example.com, you should get my-cluster.grafana.example.com
+```
 ## Istio
 If you haven't disabled istio-operator, you could create istio deployment too.
 

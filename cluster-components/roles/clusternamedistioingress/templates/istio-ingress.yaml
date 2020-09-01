@@ -1,0 +1,62 @@
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: {{ service_namespace }}-{{ service_name}}
+  namespace: istio-system
+spec:
+  secretName: {{ service_namespace }}-{{ service_name}}-cert-secret
+  dnsNames:
+  - {{ host_name }}
+  issuerRef:
+    name: letsencrypt-production-issuer
+    kind: ClusterIssuer
+--- 
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ service_namespace }}-{{ service_name}}
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+   - port:
+      number: 443
+      name: {{ service_namespace }}-{{ service_name}}-https-443
+      protocol: HTTPS
+     hosts:
+     - {{ host_name }}
+     tls:
+        mode: SIMPLE
+        credentialName: {{ service_namespace }}-{{ service_name}}-cert-secret
+   - port:
+      number: 80
+      name: {{ service_namespace }}-{{ service_name}}-80
+      protocol: HTTP
+     tls:
+      httpsRedirect: true
+     hosts:
+     - {{ host_name }}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ service_namespace }}-{{ service_name}}
+  namespace: {{ service_namespace }}
+spec:
+  hosts:
+  - {{ host_name }}
+  gateways:
+  - istio-system/{{ service_namespace }}-{{ service_name}}
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        port:
+          number: {{ service_port }}
+        host: grafana
+
+

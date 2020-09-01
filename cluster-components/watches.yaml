@@ -28,3 +28,8 @@
   group: cluster.components
   kind: Route53NestedSubdomain
   role: route53nestedsubdomain
+
+- version: v1alpha1
+  group: cluster.components
+  kind: ClusterNamedIstioIngress
+  role: clusternamedistioingress

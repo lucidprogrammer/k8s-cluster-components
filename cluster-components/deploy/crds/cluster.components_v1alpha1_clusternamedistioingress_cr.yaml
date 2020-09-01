@@ -1,0 +1,13 @@
+apiVersion: cluster.components/v1alpha1
+kind: ClusterNamedIstioIngress
+metadata:
+  name: example-clusternamedistioingress
+spec:
+  # Add fields here
+  state: "present"
+  service_namespace: "observability"
+  service_name: "grafana"
+  service_port: 3000
+  subdomain: "grafana"
+  # the above configuration assumes a cluster-info configmap 
+  # if cluster_name is my-cluster and route53_hosted_zone is example.com, you should get my-cluster.grafana.example.com

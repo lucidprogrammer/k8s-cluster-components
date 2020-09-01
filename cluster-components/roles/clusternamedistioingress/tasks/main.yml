@@ -1,0 +1,33 @@
+---
+- name: "get cluster_info"
+  set_fact:
+    cluster_info: "{{ lookup('k8s', api_version='v1', kind='ConfigMap',resource_name='cluster-info',namespace='kube-system') }}"
+   
+- name: "set variables from cluster_info"
+  when: cluster_info is defined and (cluster_info | length > 0)
+  set_fact:
+    route53_hosted_zone: "{{cluster_info.data.route53_hosted_zone if cluster_info.data.route53_hosted_zone is defined else ''}}"
+    cluster_name: "{{cluster_info.data.cluster_name if cluster_info.data.cluster_name is defined else ''}}"
+- name: "set host name - with subdomain"
+  when:
+    - route53_hosted_zone is defined and (route53_hosted_zone | length > 0)
+    - cluster_name is defined and (cluster_name | length > 0)
+    - subdomain is defined and (subdomain | length > 0 )
+  set_fact:
+    host_name: "{{ cluster_name }}.{{ subdomain }}.{{ route53_hosted_zone }}"
+- name: "set host name - no subdomain"
+  when:
+    - route53_hosted_zone is defined and (route53_hosted_zone | length > 0)
+    - cluster_name is defined and (cluster_name | length > 0)
+    - subdomain is defined and (subdomain | length == 0 )
+  set_fact:
+    host_name: "{{ cluster_name }}.{{ route53_hosted_zone }}"
+- name: "Cluster Autoscaler resource"
+  when:
+    - service_namespace is defined and (service_namespace | length > 0)
+    - service_name is defined and (service_name | length > 0)
+    - host_name is defined and ( host_name | length > 0 )
+    - service_port is defined and (service_port > 0)
+  community.kubernetes.k8s:
+    state: "{{ state }}"
+    definition: "{{ lookup('template','istio-ingress.yaml' | from_yaml)}}"
