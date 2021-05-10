@@ -1,5 +1,5 @@
 
-imageTag: v0.1.2
+imageTag: v0.1.3
 istioOperator:
   install: true
 
