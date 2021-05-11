@@ -1,0 +1,10 @@
+## Append samples you want in your CSV to this file as resources ##
+resources:
+- apps_v1_certificatemanager.yaml
+- apps_v1_clusterautoscaler.yaml
+- apps_v1_verticalpodautoscaler.yaml
+- apps_v1_externaldns.yaml
+- apps_v1_metricserver.yaml
+- apps_v1_route53nestedsubdomain.yaml
+- apps_v1_clusternamedistioingress.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

@@ -1,0 +1,24 @@
+# permissions for end users to edit clusterautoscalers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: clusterautoscaler-editor-role
+rules:
+- apiGroups:
+  - apps.cluster.components
+  resources:
+  - clusterautoscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps.cluster.components
+  resources:
+  - clusterautoscalers/status
+  verbs:
+  - get

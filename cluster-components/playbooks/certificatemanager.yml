@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  collections:
+    - community.kubernetes
+    - operator_sdk.util
+  tasks:
+    - import_role:
+        name: "certificatemanager"

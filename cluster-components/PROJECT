@@ -1,0 +1,58 @@
+domain: cluster.components
+layout:
+- ansible.sdk.operatorframework.io/v1
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: cluster-components
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cluster.components
+  group: apps
+  kind: CertificateManager
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cluster.components
+  group: apps
+  kind: ClusterAutoscaler
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cluster.components
+  group: apps
+  kind: VerticalPodAutoscaler
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cluster.components
+  group: apps
+  kind: ExternalDns
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cluster.components
+  group: apps
+  kind: MetricServer
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cluster.components
+  group: apps
+  kind: Route53NestedSubdomain
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cluster.components
+  group: apps
+  kind: ClusterNamedIstioIngress
+  version: v1
+version: "3"

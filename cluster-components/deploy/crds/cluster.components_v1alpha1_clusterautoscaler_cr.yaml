@@ -1,7 +1,0 @@
-apiVersion: cluster.components/v1alpha1
-kind: ClusterAutoscaler
-metadata:
-  name: cluster-autoscaler
-spec:
-  cluster_name: "clname"
-  state: "absent"

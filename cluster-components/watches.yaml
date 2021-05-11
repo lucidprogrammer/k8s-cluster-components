@@ -1,35 +1,32 @@
 ---
-- version: v1alpha1
-  group: cluster.components
+# Use the 'create api' subcommand to add watches to this file.
+- version: v1
+  group: apps.cluster.components
   kind: CertificateManager
-  role: certificatemanager
-
-- version: v1alpha1
-  group: cluster.components
+  playbook: playbooks/certificatemanager.yml
+  snakeCaseParameters: false
+- version: v1
+  group: apps.cluster.components
   kind: ClusterAutoscaler
-  role: clusterautoscaler
-
-- version: v1alpha1
-  group: cluster.components
+  playbook: playbooks/clusterautoscaler.yml
+- version: v1
+  group: apps.cluster.components
   kind: VerticalPodAutoscaler
-  role: verticalpodautoscaler
-
-- version: v1alpha1
-  group: cluster.components
+  playbook: playbooks/verticalpodautoscaler.yml
+- version: v1
+  group: apps.cluster.components
   kind: ExternalDns
-  role: externaldns
-
-- version: v1alpha1
-  group: cluster.components
+  playbook: playbooks/externaldns.yml
+- version: v1
+  group: apps.cluster.components
   kind: MetricServer
-  role: metricserver
-
-- version: v1alpha1
-  group: cluster.components
+  playbook: playbooks/metricserver.yml
+- version: v1
+  group: apps.cluster.components
   kind: Route53NestedSubdomain
-  role: route53nestedsubdomain
-
-- version: v1alpha1
-  group: cluster.components
+  playbook: playbooks/route53nestedsubdomain.yml
+- version: v1
+  group: apps.cluster.components
   kind: ClusterNamedIstioIngress
-  role: clusternamedistioingress
+  playbook: playbooks/clusternamedistioingress.yml
+#+kubebuilder:scaffold:watch

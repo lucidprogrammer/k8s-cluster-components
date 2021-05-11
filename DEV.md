@@ -1,11 +1,11 @@
 # Overview
 
-To start development, run the following command
+To start development, 
 
 ```bash
 # first make your AWS_PROFILE is is exported
 export AWS_PROFILE=profilename
-./dev.sh start
+make -C cluster-components install run
 ```
 
 Then apply the required cr to see its working and apply changes accordingly.
@@ -13,18 +13,17 @@ Then apply the required cr to see its working and apply changes accordingly.
 When you are done, clean resources applied (cr) and do the following.
 
 ```bash
-./dev.sh stop
-```
-## Testing chart during development
-
-```bash
-./release.sh
-./dev.sh stop
-helm install cluster-components chart/cluster-components-operator
+make -C cluster-components uninstall
 ```
 
 ## Creating a new api
 
 ```bash
-operator-sdk add api --api-version=cluster.components/v1alpha1 --kind=Route53NestedSubdomain
+kind=yournewapi
+ operator-sdk create api \
+    --group=apps \
+    --version=v1 \
+    --kind="$kind" \
+    --generate-playbook \
+    --generate-role 
 ```

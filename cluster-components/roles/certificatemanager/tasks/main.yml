@@ -80,7 +80,8 @@
     var: solvers
 - debug:
     var: yml
-    
+- debug:
+    var: cluster_issuer.acme.solvers
 - name: "is clusterissuers crd available"
   set_fact:
     clusterissuer_available: "{{lookup('k8s', kind='CustomResourceDefinition',resource_name='clusterissuers.cert-manager.io')}}"
@@ -96,7 +97,7 @@
   community.kubernetes.helm:
     chart_ref: cert-manager
     chart_repo_url: https://charts.jetstack.io
-    chart_version: v0.15.1
+    chart_version: v1.3.1
     release_name: cert-manager
     release_namespace: cert-manager
     release_state: "{{ state }}"

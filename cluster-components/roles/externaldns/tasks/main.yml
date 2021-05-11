@@ -14,6 +14,13 @@
     route53_hosted_zone: "{{cluster_info_cm.data.route53_hosted_zone if cluster_info_cm.data.route53_hosted_zone is defined else ''}}"
     route53_role_arn: "{{cluster_info_cm.data.route53_role_arn if cluster_info_cm.data.route53_role_arn is defined else ''}}"
     cluster_name: "{{cluster_info_cm.data.cluster_name if cluster_info_cm.data.cluster_name is defined else ''}}"
+
+- name: "ingress_class set default"
+  when:
+    - ingress_class is undefined
+  set_fact:
+    ingress_class: "istio"
+
 - name: "add owner id from values"
   when:
     - owner_id is defined and (owner_id | length > 0)
@@ -24,46 +31,64 @@
     - owner_id is undefined or (owner_id | length == 0)
     - cluster_name is defined and (cluster_name| length > 0)
   set_fact:
-    external_dns_args: "{{ external_dns_args + [\"--txt-owner-id=\"+cluster_name]}}"
-- name: "add domain filter from values"
-  when:
-    - domain_filter is defined and (domain_filter | length > 0)
-  set_fact:
-    external_dns_args: "{{ external_dns_args + [\"--domain-filter=\"+domain_filter]}}"
+    external_dns_args: "{{ external_dns_args + [\"--txt-owner-id=\"+cluster_name+\"-\"+ingress_class ]}}"
+
 - name: "add domain filter from cluster-info"
   when:
     - domain_filter is undefined or (domain_filter | length == 0)
     - route53_hosted_zone is defined and (route53_hosted_zone| length > 0)
   set_fact:
-    external_dns_args: "{{ external_dns_args + [\"--domain-filter=\"+route53_hosted_zone]}}"
-- name: "add assume role from values"
+    domain_filter: "{{ route53_hosted_zone }}"
+    
+- name: "add domain filter"
   when:
-    - assume_role_arn is defined and (assume_role_arn|length >0)
+    - domain_filter is defined and (domain_filter | length > 0)
   set_fact:
-    external_dns_args: "{{ external_dns_args + [\"--aws-assume-role=\"+assume_role_arn]}}"
+    external_dns_args: "{{ external_dns_args + [\"--domain-filter=\"+domain_filter]}}"
+
 - name: "add assume role from cluster-info"
   when:
     - assume_role_arn is undefined or (assume_role_arn|length == 0)
     - route53_role_arn is defined and (route53_role_arn | length > 0)
   set_fact:
     external_dns_args: "{{ external_dns_args + [\"--aws-assume-role=\"+route53_role_arn]}}"
+- name: "add assume role from values"
+  when:
+    - assume_role_arn is defined and (assume_role_arn|length >0) and (assume_role_arn != 'ignore')
+  set_fact:
+    external_dns_args: "{{ external_dns_args + [\"--aws-assume-role=\"+assume_role_arn]}}"
+
 - name: "add provider from values"
   when:
     - cloud_provider is defined and (cloud_provider | length > 0)
   set_fact:
     external_dns_args: "{{ external_dns_args + [\"--provider=\"+cloud_provider]}}"
+- name: "istio related arguments"
+  when:
+    - ingress_class == 'istio'
+  set_fact:
+    external_dns_args: "{{ external_dns_args + external_dns_istio_args }}"
+    
 - name: "add provider from cluster_info"
   when:
     - cloud_provider is undefined or (cloud_provider | length == 0)
     - provider is defined and (provider | length > 0)
   set_fact:
     external_dns_args: "{{ external_dns_args + [\"--provider=\"+provider]}}"
+- name: "external dns unique name based on parameters"
+  when:
+    - ingress_class is defined
+    - domain_filter is defined
+  set_fact:
+    external_dns_cr_name: "{{ ingress_class + \"-\" + domain_filter.replace('.','-') }}"
 - name: "define"
   set_fact:
     external_dns_args_str: "{{ lookup('template','external-dns.yaml'| from_yaml  )}}"
 
 - debug:
     var: external_dns_args_str
+- debug:
+    var: external_dns_cr_name
 - name: "apply external-dns"
   community.kubernetes.k8s:
     state: "{{ state }}"

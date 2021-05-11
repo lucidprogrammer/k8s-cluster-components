@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
 # shellcheck disable=SC2002,SC2128,SC2207,SC2034
-ISTIO_RELEASE=1.7.0
+ISTIO_RELEASE=1.9.4
 export DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 CHARTS="$( cd "$( dirname "${BASH_SOURCE[0]}" )/chart/cluster-components-operator/charts/" && pwd )"
-CRDS="$( cd "$( dirname "${BASH_SOURCE[0]}" )/cluster-components/deploy/crds" && pwd )"
 
 if [ -z "${LUCID_DOCKER_HUB_PASSWORD}" ]; then
    echo env LUCID_DOCKER_HUB_PASSWORD not found; exit 1
@@ -18,20 +17,21 @@ if [ -f "${CHARTS}"/istio-operator/values.yaml ]; then
     current="$(cat "${CHARTS}"/istio-operator/values.yaml | awk '/^tag/')"
     if [ "$current" == "tag: ${ISTIO_RELEASE}" ]; then
       status=""  
+    else
+      rm -rf "${CHARTS}"/istio-operator
     fi
 fi
 
 if command -v svn 2>/dev/null; then
    if [ -n "$status" ]; then
     svn export --force https://github.com/istio/istio/tags/"${ISTIO_RELEASE}"/manifests/charts/istio-operator "${CHARTS}"/istio-operator
-    sed 's|^hub:.*|hub: docker.io/istio|' -i "${CHARTS}"/istio-operator/values.yaml
     sed "s|^tag:.*|tag: ${ISTIO_RELEASE}|" -i "${CHARTS}"/istio-operator/values.yaml
    fi
 else
    echo "You don't have svn, please make sure you have svn"; exit 1
 fi
 
-cp "${CRDS}"/*_crd.yaml "${DIR}"/chart/cluster-components-operator/templates/
+
 sed "s|^imageTag:.*|imageTag: ${TAG}|" -i "${DIR}"/chart/cluster-components-operator/values.yaml
 if [[ "${TAG}" == v* ]]; then
    chart_version="$(echo "${TAG}" | tr -d v)"
@@ -46,11 +46,11 @@ if [[ "$version" == 2 ]]; then
    python="python3"
 fi
 
-$python "${DIR}"/update-templates.py
-
-docker build -t lucidprogrammer/cluster-components-operator:"${TAG}" -f "${DIR}"/cluster-components/build/Dockerfile "${DIR}"/cluster-components/
+VERSION="$(echo "${TAG}" | tr -d v)"
+VERSION="${VERSION}" make -C "$DIR/"cluster-components docker-build
 docker login -u lucidprogrammer -p "${LUCID_DOCKER_HUB_PASSWORD}"
-docker push lucidprogrammer/cluster-components-operator:"${TAG}"
+VERSION="${VERSION}" make -C "$DIR"/cluster-components docker-push
+VERSION="${VERSION}" make -C "$DIR"/cluster-components update-chart
 if [[ "${TAG}" == v* ]]; then
    helm lint "${DIR}"/chart/cluster-components-operator
    helm package "${DIR}"/chart/cluster-components-operator --destination "${DIR}"/chart/

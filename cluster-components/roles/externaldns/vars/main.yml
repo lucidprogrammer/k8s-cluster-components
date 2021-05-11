@@ -1,10 +1,11 @@
 ---
 # vars file for externaldns
+external_dns_istio_args:
+  - --source=service
+  - --source=istio-gateway
 
 external_dns_args:
-  - --source=service
   - --source=ingress
-  - --source=istio-gateway
   - --policy=sync
   - --log-level=debug
   - --aws-zone-type=public

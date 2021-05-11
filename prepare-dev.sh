@@ -18,15 +18,19 @@ if [[ "$flavour" != *ubuntu* ]]; then
     echo "Scripts are for ubuntu" exit 1
 fi
 
-RELEASE_VERSION=v0.19.0
+RELEASE_VERSION=v1.7.2
+# https://sdk.operatorframework.io/docs/installation/
+export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
+export OS=$(uname | awk '{print tolower($0)}')
 if ! command -v operator-sdk 2>/dev/null; then
-    curl -LO https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu
-    curl -LO https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/ansible-operator-${RELEASE_VERSION}-x86_64-linux-gnu
-    curl -LO https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/helm-operator-${RELEASE_VERSION}-x86_64-linux-gnu
-
-    chmod +x operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu && sudo cp operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu /usr/local/bin/operator-sdk && rm operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu
-    chmod +x ansible-operator-${RELEASE_VERSION}-x86_64-linux-gnu && sudo cp ansible-operator-${RELEASE_VERSION}-x86_64-linux-gnu /usr/local/bin/ansible-operator && rm ansible-operator-${RELEASE_VERSION}-x86_64-linux-gnu
-    chmod +x helm-operator-${RELEASE_VERSION}-x86_64-linux-gnu && sudo cp helm-operator-${RELEASE_VERSION}-x86_64-linux-gnu /usr/local/bin/helm-operator && rm helm-operator-${RELEASE_VERSION}-x86_64-linux-gnu
+    export OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}
+    curl -LO ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH}
+    curl -LO ${OPERATOR_SDK_DL_URL}/ansible-operator_${OS}_${ARCH}
+    curl -LO ${OPERATOR_SDK_DL_URL}/helm-operator_${OS}_${ARCH}
+    
+    chmod +x operator-sdk_${OS}_${ARCH} && sudo mv operator-sdk_${OS}_${ARCH} /usr/local/bin/operator-sdk
+    chmod +x ansible-operator_${OS}_${ARCH} && sudo mv ansible-operator_${OS}_${ARCH} /usr/local/bin/ansible-operator
+    chmod +x helm-operator_${OS}_${ARCH} && sudo mv helm-operator_${OS}_${ARCH} /usr/local/bin/helm-operator
 fi
 
 if ! command -v ansible 2>/dev/null; then
@@ -38,7 +42,7 @@ if [ -z "$(pip list | grep openshift)" ]; then
      pip install openshift
      ansible-galaxy collection install -r "${DIR}"/cluster-components/requirements.yml
 fi
-helmRequiredVersion="v3.2.4"
+helmRequiredVersion="v3.5.4"
 if ! command -v helm 2>/dev/null; then
       
     bits="$(uname -m)"

@@ -6,6 +6,13 @@ An operator for useful Kubernetes Cluster Components.
 
 It should work on most of the clusters, however, tested only on EKS.
 
+## Latest Update Highlights v0.1.4
+
+- update operator-framework from v0.19.0 to v1.7.2
+- support for multiple ingress controllers at the same time with external dns / multiple hosted zones
+- support for multiple acme/dns cluster issuers
+- upgrade controllers supporting kubernetes 1.19
+
 
 ## Installation
 
@@ -92,9 +99,11 @@ spec:
   cluster_info: "present" # will pick up details from your cluster-info and configures automatically or specify other params
   # cloud_provider: aws
   # domain_filter: "domain.com"
-  # assume_role_arn:
+  # assume_role_arn: # default is empty, however if cluster_info configmap is there,uses that. You may provide 'ignore'
   # owner_id: # if cluster-info configmap is there, we will pick up cluster_name and use it as the owner_id
+  # ingress_class: nginx (default is istio)
 ```
+This should create a external dns deployment with a naming like external-dns-ingresscontrollername-domain-name (ex: external-dns-nginx-acme-com)
 ## Certificate Manager
 This will look for cert-manager namespace and will not create that automatically.
 ```yaml

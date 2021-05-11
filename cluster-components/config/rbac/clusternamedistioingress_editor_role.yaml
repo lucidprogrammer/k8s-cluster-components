@@ -1,0 +1,24 @@
+# permissions for end users to edit clusternamedistioingresses.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: clusternamedistioingress-editor-role
+rules:
+- apiGroups:
+  - apps.cluster.components
+  resources:
+  - clusternamedistioingresses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps.cluster.components
+  resources:
+  - clusternamedistioingresses/status
+  verbs:
+  - get

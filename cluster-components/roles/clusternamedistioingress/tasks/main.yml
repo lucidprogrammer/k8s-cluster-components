@@ -22,7 +22,7 @@
     - subdomain is defined and (subdomain | length == 0 )
   set_fact:
     host_name: "{{ cluster_name }}.{{ route53_hosted_zone }}"
-- name: "Cluster Autoscaler resource"
+- name: "Cluster ingress resource"
   when:
     - service_namespace is defined and (service_namespace | length > 0)
     - service_name is defined and (service_name | length > 0)

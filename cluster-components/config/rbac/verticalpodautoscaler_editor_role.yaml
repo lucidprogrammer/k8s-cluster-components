@@ -1,0 +1,24 @@
+# permissions for end users to edit verticalpodautoscalers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: verticalpodautoscaler-editor-role
+rules:
+- apiGroups:
+  - apps.cluster.components
+  resources:
+  - verticalpodautoscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps.cluster.components
+  resources:
+  - verticalpodautoscalers/status
+  verbs:
+  - get

@@ -1,0 +1,24 @@
+# permissions for end users to edit route53nestedsubdomains.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: route53nestedsubdomain-editor-role
+rules:
+- apiGroups:
+  - apps.cluster.components
+  resources:
+  - route53nestedsubdomains
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps.cluster.components
+  resources:
+  - route53nestedsubdomains/status
+  verbs:
+  - get

@@ -1,0 +1,7 @@
+apiVersion: apps.cluster.components/v1
+kind: ExternalDns
+metadata:
+  name: externaldns-sample
+spec:
+  # Add fields here
+  foo: bar
