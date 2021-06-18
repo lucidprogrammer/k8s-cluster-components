@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
 # shellcheck disable=SC2002,SC2128,SC2207,SC2034
-ISTIO_RELEASE=1.9.4
+ISTIO_RELEASE=1.10.1
 export DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi

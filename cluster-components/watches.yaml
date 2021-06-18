@@ -5,28 +5,56 @@
   kind: CertificateManager
   playbook: playbooks/certificatemanager.yml
   snakeCaseParameters: false
+  finalizer:
+    name: apps.cluster.components/finalizer
+    vars:
+      state: absent
 - version: v1
   group: apps.cluster.components
   kind: ClusterAutoscaler
   playbook: playbooks/clusterautoscaler.yml
+  finalizer:
+    name: apps.cluster.components/finalizer
+    vars:
+      state: absent
 - version: v1
   group: apps.cluster.components
   kind: VerticalPodAutoscaler
   playbook: playbooks/verticalpodautoscaler.yml
+  finalizer:
+    name: apps.cluster.components/finalizer
+    vars:
+      state: absent
 - version: v1
   group: apps.cluster.components
   kind: ExternalDns
   playbook: playbooks/externaldns.yml
+  finalizer:
+    name: apps.cluster.components/finalizer
+    vars:
+      state: absent
 - version: v1
   group: apps.cluster.components
   kind: MetricServer
   playbook: playbooks/metricserver.yml
+  finalizer:
+    name: apps.cluster.components/finalizer
+    vars:
+      state: absent
 - version: v1
   group: apps.cluster.components
   kind: Route53NestedSubdomain
   playbook: playbooks/route53nestedsubdomain.yml
+  finalizer:
+    name: apps.cluster.components/finalizer
+    vars:
+      state: absent
 - version: v1
   group: apps.cluster.components
   kind: ClusterNamedIstioIngress
   playbook: playbooks/clusternamedistioingress.yml
+  finalizer:
+    name: apps.cluster.components/finalizer
+    vars:
+      state: absent
 #+kubebuilder:scaffold:watch
