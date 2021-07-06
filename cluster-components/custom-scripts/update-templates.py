@@ -3,6 +3,11 @@ import os
 import sys
 
 DIR = os.environ.get('DIR')
+selector_yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)),'selector.yaml.template')
+selector_txt = ''
+deployment = ''
+with open(selector_yaml,'r',encoding='utf-8') as reader:
+    selector_txt = reader.read()
 
 templates_dir = os.path.join(DIR,'chart/cluster-components-operator/templates')
 # print(os.path.realpath(templates_dir))
@@ -30,8 +35,15 @@ for template in templates:
                 if(given['kind'] == 'Deployment'):
                     containers = given['spec']['template']['spec']['containers']
                     given['spec']['template']['spec']['containers']=list(map(lambda a: change_image(a),containers))
-                updated = '%s\n%s\n---' %(updated,yaml.dump(given))
+                    # deployment = '%s\n%s%s\n---' %(updated,yaml.dump(given),selector_txt)
+                    updated = '%s\n---\n%s%s\n' %(updated,yaml.dump(given),selector_txt)
+                elif(given['kind'] == 'Namespace'):
+                    updated = '%s\n---\n{{- if .Values.createns }}\n%s{{- end }}\n' %(updated,yaml.dump(given))
+                else:
+                    updated = '%s\n---\n%s\n' %(updated,yaml.dump(given))
 
+                
+    # updated = '%s\n%s\n' %(updated,deployment)
     with open(template,mode='w',encoding='utf-8') as writer:
         writer.write(updated)
 

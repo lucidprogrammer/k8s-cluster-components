@@ -4,6 +4,8 @@ external_dns_istio_args:
   - --source=service
   - --source=istio-gateway
 
+nodeSelector: {}
+
 external_dns_args:
   - --source=ingress
   - --policy=sync

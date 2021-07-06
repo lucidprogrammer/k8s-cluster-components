@@ -141,6 +141,7 @@ spec:
         prometheus.io/port: '8085'
     spec:
       serviceAccountName: cluster-autoscaler
+      nodeSelector: {{ nodeSelector }}
       containers:
         - image: us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:{{ autoscaler_version }}
           name: cluster-autoscaler

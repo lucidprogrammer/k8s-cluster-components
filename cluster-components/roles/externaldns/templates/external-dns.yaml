@@ -55,6 +55,7 @@ spec:
         app: external-dns-{{ external_dns_cr_name }}
     spec:
       serviceAccountName: external-dns-{{ external_dns_cr_name }}
+      nodeSelector: {{ nodeSelector }}
       containers:
       - name: external-dns-{{ external_dns_cr_name }}
         image: us.gcr.io/k8s-artifacts-prod/external-dns/external-dns:v0.7.6

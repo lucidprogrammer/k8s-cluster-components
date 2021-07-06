@@ -161,8 +161,7 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: tmp-dir
-      nodeSelector:
-        kubernetes.io/os: linux
+      nodeSelector: {{ nodeSelector }}
       priorityClassName: system-cluster-critical
       serviceAccountName: metrics-server
       volumes:

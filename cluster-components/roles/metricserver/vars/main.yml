@@ -1,2 +1,4 @@
 ---
 # vars file for MetricServer
+nodeSelector:
+  kubernetes.io/os: linux

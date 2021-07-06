@@ -5,6 +5,10 @@
 An operator for useful Kubernetes Cluster Components.
 
 It should work on most of the clusters, however, tested only on EKS.
+## Latest Update Highlights v0.1.6
+- nodeSelectors
+- finalizers
+- tested on 1.20 EKS
 
 ## Latest Update Highlights v0.1.4
 
@@ -61,6 +65,7 @@ metadata:
 spec:
   # cluster_name: "clname" # if you don't provide this, will look for a configmap cluster-info in kube-system
   state: "absent"  # give the value present if the operator need to create the autoscaler.
+  nodeSelector: {}
 ```
 ## Vertical Pod Autoscaler
 
@@ -85,6 +90,7 @@ metadata:
 spec:
   # Add fields here
   state: "present"
+  nodeSelector: {}
 ```
 ## External DNS
 
@@ -95,6 +101,7 @@ metadata:
   name: example-externaldns
 spec:
   # Add fields here
+  nodeSelector: {}
   state: "absent"
   cluster_info: "present" # will pick up details from your cluster-info and configures automatically or specify other params
   # cloud_provider: aws
@@ -112,6 +119,7 @@ kind: CertificateManager
 metadata:
   name: example-certificatemanager
 spec:
+  nodeSelector: {}
   state: "absent"
   cluster_issuer:
     cluster_info: "present" # if this is present, everything is set automatically
