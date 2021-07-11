@@ -148,10 +148,10 @@ spec:
           resources:
             limits:
               cpu: 100m
-              memory: 300Mi
+              memory: 400Mi
             requests:
               cpu: 100m
-              memory: 300Mi
+              memory: 400Mi
           command:
             - ./cluster-autoscaler
             - --v=4
@@ -162,6 +162,7 @@ spec:
             - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/{{ cluster_name }}
             - --balance-similar-node-groups
             - --skip-nodes-with-system-pods=false
+            - --aws-use-static-instance-list={{ useStaticInstanceList }}
           volumeMounts:
             - name: ssl-certs
               mountPath: /etc/ssl/certs/ca-certificates.crt
