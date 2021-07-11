@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: lucidprogrammer/cluster-components-operator
-  newTag: v0.1.6
+  newTag: v0.1.7
