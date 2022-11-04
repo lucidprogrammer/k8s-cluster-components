@@ -1,6 +1,17 @@
 ---
 # tasks file for metricserver
+- name: "set node_selector"
+  when: node_selector is undefined or (node_selector is defined and (node_selector | length == 0))
+  set_fact:
+    node_selector: "{}"
 - name: "apply metric-server"
-  community.kubernetes.k8s:
-    state: "{{ state }}"
-    definition: "{{ lookup('template','metric-server.yaml' | from_yaml)}}"
+  kubernetes.core.helm:
+    chart_ref: metrics-server
+    chart_repo_url: https://kubernetes-sigs.github.io/metrics-server/
+    chart_version: 3.8.2
+    release_name: metrics-server
+    release_namespace: kube-system
+    release_state: "{{ state }}"
+    release_values:
+      nodeSelector: "{{ node_selector }}"
+     

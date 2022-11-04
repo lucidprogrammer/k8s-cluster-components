@@ -4,7 +4,7 @@
   connection: local
   gather_facts: no
   collections:
-    - community.kubernetes
+    - kubernetes.core
 
   tasks:
     - name: Ensure operator image is set

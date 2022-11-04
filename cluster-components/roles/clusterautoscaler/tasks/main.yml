@@ -8,6 +8,10 @@
   when: cluster_info is defined and (cluster_info | length > 0)
   set_fact:
     cluster_name: "{{cluster_info.data.cluster_name if cluster_info.data.cluster_name is defined else ''}}"
+- name: "set cluster_region"
+  when: cluster_info is defined and (cluster_info | length > 0)
+  set_fact:
+    cluster_region: "{{cluster_info.data.region if cluster_info.data.region is defined else ''}}"
 - debug:
     var: cluster_name
 - name: "cluster_major_version"
@@ -28,14 +32,34 @@
      verbosity: 4
      msg:
       - Installing cluster autoscaler version {{autoscaler_version}} on cluster {{cluster_name}}
-      - Template is {{ lookup('template','cluster-autoscaler.yaml' | from_yaml)}}
-   
+
+- name: "set node_selector"
+  when: node_selector is undefined or (node_selector is defined and (node_selector | length == 0))
+  set_fact:
+    node_selector: "{}"
 - name: "Cluster Autoscaler resource"
   when:
     - autoscaler_version is defined and (autoscaler_version | length > 0)
     - cluster_name is defined and (cluster_name | length > 0)
-  community.kubernetes.k8s:
-    state: "{{ state }}"
-    definition: "{{ lookup('template','cluster-autoscaler.yaml' | from_yaml)}}"
+  kubernetes.core.helm:
+    chart_ref: cluster-autoscaler
+    chart_repo_url: https://kubernetes.github.io/autoscaler
+    chart_version: 9.21.0
+    release_name: cluster-autoscaler
+    release_namespace: kube-system
+    release_state: "{{ state }}"
+    release_values:
+      autoDiscovery:
+        clusterName: "{{cluster_name}}"
+      nodeSelector: "{{ node_selector }}"
+      cloudProvider: "{{ cloudProvider }}"
+      awsRegion: "{{ cluster_region }}"
+      extraArgs:
+        'balance-similar-node-groups': "{{ balanceSimilarNodeGroups }}"
+        'skip-nodes-with-local-storage': 'false'
+        'skip-nodes-with-system-pods': 'false'
+        expander: 'least-waste'
+      
+
       
     

@@ -90,7 +90,7 @@
 - debug:
     var: external_dns_cr_name
 - name: "apply external-dns"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: "{{ state }}"
     definition: "{{ lookup('template','external-dns.yaml' | from_yaml)}}"
 

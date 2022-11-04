@@ -1,63 +1,152 @@
+---
+# Source: external-dns/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: external-dns-{{ external_dns_cr_name }}
   namespace: kube-system
+  labels:
+    helm.sh/chart: external-dns-1.11.0
+    app.kubernetes.io/name: external-dns
+    app.kubernetes.io/instance: external-dns-{{ external_dns_cr_name }}
+    app.kubernetes.io/version: "0.12.2"
+    app.kubernetes.io/managed-by: Helm
 ---
+# Source: external-dns/templates/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: external-dns-{{ external_dns_cr_name }}
-  namespace: kube-system
+  labels:
+    helm.sh/chart: external-dns-1.11.0
+    app.kubernetes.io/name: external-dns
+    app.kubernetes.io/instance: external-dns-{{ external_dns_cr_name }}
+    app.kubernetes.io/version: "0.12.2"
+    app.kubernetes.io/managed-by: Helm
 rules:
 - apiGroups: [""]
-  resources: ["services","endpoints","pods"]
-  verbs: ["get","watch","list"]
-- apiGroups: ["extensions"] 
-  resources: ["ingresses"] 
+  resources: ["nodes"]
+  verbs: ["list","watch"]
+- apiGroups: [""]
+  resources: ["pods"]
   verbs: ["get","watch","list"]
 - apiGroups: [""]
-  resources: ["nodes"]
-  verbs: ["list"]
+  resources: ["services","endpoints"]
+  verbs: ["get","watch","list"]
+- apiGroups: ["extensions","networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get","watch","list"]
 {% if ingress_class == 'istio' %}
 - apiGroups: ["networking.istio.io"]
   resources: ["gateways"]
   verbs: ["get","watch","list"]
 {% endif %}
 ---
+# Source: external-dns/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: external-dns-viewer-{{ external_dns_cr_name }}
+  labels:
+    helm.sh/chart: external-dns-1.11.0
+    app.kubernetes.io/name: external-dns
+    app.kubernetes.io/instance: external-dns-release-name
+    app.kubernetes.io/version: "0.12.2"
+    app.kubernetes.io/managed-by: Helm
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: external-dns-{{ external_dns_cr_name }}
 subjects:
-- kind: ServiceAccount
+  - kind: ServiceAccount
+    name: external-dns-{{ external_dns_cr_name }}
+    namespace: kube-system
+---
+# Source: external-dns/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
   name: external-dns-{{ external_dns_cr_name }}
   namespace: kube-system
+  labels:
+    helm.sh/chart: external-dns-1.11.0
+    app.kubernetes.io/name: external-dns
+    app.kubernetes.io/instance: external-dns-{{ external_dns_cr_name }}
+    app.kubernetes.io/version: "0.12.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: external-dns
+    app.kubernetes.io/instance: external-dns-{{ external_dns_cr_name }}
+  ports:
+    - name: http
+      port: 7979
+      targetPort: http
+      protocol: TCP
 ---
+# Source: external-dns/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: external-dns-{{ external_dns_cr_name }}
   namespace: kube-system
+  labels:
+    helm.sh/chart: external-dns-1.11.0
+    app.kubernetes.io/name: external-dns
+    app.kubernetes.io/instance: external-dns-{{ external_dns_cr_name }}
+    app.kubernetes.io/version: "0.12.2"
+    app.kubernetes.io/managed-by: Helm
 spec:
-  strategy:
-    type: Recreate
+  replicas: 1
   selector:
     matchLabels:
-      app: external-dns-{{ external_dns_cr_name }}
+      app.kubernetes.io/name: external-dns
+      app.kubernetes.io/instance: external-dns-{{ external_dns_cr_name }}
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
-        app: external-dns-{{ external_dns_cr_name }}
+        app.kubernetes.io/name: external-dns
+        app.kubernetes.io/instance: external-dns-{{ external_dns_cr_name }}
     spec:
       serviceAccountName: external-dns-{{ external_dns_cr_name }}
-      nodeSelector: {{ nodeSelector }}
+      nodeSelector: {{ node_selector }}
+      securityContext:
+        fsGroup: 65534
       containers:
-      - name: external-dns-{{ external_dns_cr_name }}
-        image: us.gcr.io/k8s-artifacts-prod/external-dns/external-dns:v0.7.6
-        args: {{external_dns_args}}
----
+        - name: external-dns-{{ external_dns_cr_name }}
+          securityContext:
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65534
+          image: k8s.gcr.io/external-dns/external-dns:v0.12.2
+          imagePullPolicy: IfNotPresent
+          args: {{external_dns_args}}
+           
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: 7979
+          livenessProbe:
+            failureThreshold: 2
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5

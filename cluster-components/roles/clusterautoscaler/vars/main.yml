@@ -1,4 +1,5 @@
 ---
 # vars file for ClusterAutoscaler
-nodeSelector: {}
-useStaticInstanceList: "false"
+# nodeSelector: {}
+balanceSimilarNodeGroups: "true"
+cloudProvider: "aws"
