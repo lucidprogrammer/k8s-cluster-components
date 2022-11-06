@@ -1,5 +1,5 @@
 
-imageTag: v0.1.8
+imageTag: v0.1.9
 istioOperator:
   install: true
 istio-operator:
