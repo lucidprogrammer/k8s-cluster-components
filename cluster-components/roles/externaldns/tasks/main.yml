@@ -68,7 +68,10 @@
     - ingress_class == 'istio'
   set_fact:
     external_dns_args: "{{ external_dns_args + external_dns_istio_args }}"
-    
+- name: "set node_selector"
+  when: node_selector is undefined or (node_selector is defined and (node_selector | length == 0))
+  set_fact:
+    node_selector: "{}"
 - name: "add provider from cluster_info"
   when:
     - cloud_provider is undefined or (cloud_provider | length == 0)
